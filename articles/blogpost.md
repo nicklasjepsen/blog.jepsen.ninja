@@ -8,7 +8,7 @@ That is awesome, however, in this post I am going to talk about the [IHttpClient
 To use `IHttpClientFactory` in you code, you should be using DI to inject it (and any other class dependencies your code have). DI is a subject in it self and I wont go too much in details about the benefits of it in this post, instead head over to [this Microsoft article](https://docs.microsoft.com/en-us/dotnet/core/extensions/dependency-injection) if you want to learn more about it.
 I also wrote an article about DI in Azure Functions which this article is building on:
 
-%[https://blog.jepsen.ninja/gravatar-c-api]
+%[https://blog.jepsen.ninja/dependency-injection-in-azure-functions]
 
 ## So why use IHttpClientFactory?
 
@@ -31,7 +31,7 @@ This one is easy > fire up VS > File > New > Azure Function > Select HTTP Trigge
 
 This one is also covered in [my previous article](https://blog.jepsen.ninja/dependency-injection-in-azure-functions), but here are the relevant packages to install:
 
-```ps1 PowerShell
+```ps1
 Install-Package Microsoft.Extensions.Http -Version 3.1.14
 ```
 
@@ -195,8 +195,14 @@ HttpTriggerFunction_NamedHttpClient: [GET] http://localhost:7071/api/HttpTrigger
 
 We can then inspect the `HttpRequest` using Fiddler and verify that our `User-Agent` is set correctly in the second method:
 
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1619076403792/NqB6W4f-l.png)
+
 ## Wrapping up
 
 That is it for today´s `HttpClient`/`HttpClientFactory` tutorial. As you can see, there are many benefits from using DI together with `HttpClient`. This articled focused on how to use it in an Aure Function, but you can of course use this approach in any .NET project running the latest .net version. 
 
-The source code and project files for this article is available on Github, please feel free to check it out: 
+The source code and project files for this article is [available on Github](https://github.com/nicklasjepsen/blog.jepsen.ninja/tree/main/IHttpClientFactory), please feel free to check it out!
+
+In general I try to add all the resources related to my blogging in the following Github repo. Feel free to browse:
+
+%[https://github.com/nicklasjepsen/blog.jepsen.ninja]
