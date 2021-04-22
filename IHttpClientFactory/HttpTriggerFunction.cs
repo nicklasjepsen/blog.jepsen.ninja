@@ -1,35 +1,43 @@
-using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;  
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Net.Http;
+using System.Diagnostics;
 
 namespace Blog.Jepsen.Ninja
 {
-    public static class HttpTriggerFunction
+    public class HttpTriggerFunction
     {
-        [FunctionName("HttpTriggerFunction")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        private readonly HttpClient httpClient;
+        private readonly HttpClient blogClient;
+        public HttpTriggerFunction(IHttpClientFactory httpClientFactory, HttpClient httpClient)
+        {
+            this.httpClient = httpClient;
+            blogClient = httpClientFactory.CreateClient("blog");
+        }
+
+        [FunctionName("HttpTriggerFunction_InjectedClient")]
+        public async Task<IActionResult> HttpTriggerFunction_InjectedClient(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            var url = "https://blog.jepsen.ninja";
+            var sw = Stopwatch.StartNew();
+            var response = await httpClient.GetAsync(url);
+            return new OkObjectResult($"{url} returned {response.StatusCode} in {sw.ElapsedMilliseconds}ms.");
+        }
 
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
-
-            return new OkObjectResult(responseMessage);
+        [FunctionName("HttpTriggerFunction_NamedHttpClient")]
+        public async Task<IActionResult> HttpTriggerFunction_NamedHttpClient(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+    ILogger log)
+        {
+            var sw = Stopwatch.StartNew();
+            var response = await blogClient.GetAsync(string.Empty);
+            return new OkObjectResult($"{blogClient.BaseAddress} returned {response.StatusCode} in {sw.ElapsedMilliseconds}ms.");
         }
     }
 }
