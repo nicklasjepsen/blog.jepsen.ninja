@@ -1,0 +1,13 @@
+name: Update feeds
+
+on:
+  schedule:
+    - cron: '30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  log_runtime:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Log the current time
+      run: date
